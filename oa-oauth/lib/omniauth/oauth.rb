@@ -6,6 +6,7 @@ module OmniAuth
     autoload :OAuth2,             'omniauth/strategies/oauth2'
     
     autoload :Twitter,            'omniauth/strategies/twitter'
+    autoload :Orkut,              'omniauth/strategies/orkut'
     autoload :LinkedIn,           'omniauth/strategies/linked_in'
     autoload :Facebook,           'omniauth/strategies/facebook'
     autoload :GitHub,             'omniauth/strategies/github'
