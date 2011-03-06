@@ -31,7 +31,7 @@ module OmniAuth
       end
       
       def user_hash(access_token)
-					@data ||= MultiJson.decode(access_token.get('http://www.orkut.com/social/rest/people/@me/@self', {}).body)
+					@data ||= MultiJson.decode(access_token.get('http://www.orkut.com/social/rest/people/@me/@self', {}).body)['entry']
       end
     end
   end
