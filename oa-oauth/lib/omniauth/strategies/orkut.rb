@@ -25,7 +25,7 @@ module OmniAuth
 				hash = user_hash(@access_token)
        
         OmniAuth::Utils.deep_merge(super, {
-	        'uuid' => hash.delete('id'),
+	        'uid' => hash.delete('id'),
 	        'user_info' => hash
         })
       end
