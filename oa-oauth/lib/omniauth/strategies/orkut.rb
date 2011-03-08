@@ -22,16 +22,25 @@ module OmniAuth
       end
       
       def auth_hash
-				hash = user_hash(@access_token)
+				hash = user_hash
        
         OmniAuth::Utils.deep_merge(super, {
 	        'uid' => hash.delete('id'),
-	        'user_info' => hash
+	        'user_info' => hash,
+          'extra' => {'user_hash' => user_hash}
         })
       end
+
+      def user_info
+        user_hash = self.user_hash
+        {
+          'name' => "#{user_hash['name']['givenName']} #{user_hash['name']['familyName']}",
+          'image' => user_hash['thumbnailUrl']
+        }
+      end
       
-      def user_hash(access_token)
-					@data ||= MultiJson.decode(access_token.get('http://www.orkut.com/social/rest/people/@me/@self', {}).body)['entry']
+      def user_hash
+					@data ||= MultiJson.decode(@access_token.get('http://www.orkut.com/social/rest/people/@me/@self', {}).body)['entry']
       end
     end
   end
