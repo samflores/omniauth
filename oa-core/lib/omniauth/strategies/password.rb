@@ -6,10 +6,9 @@ module OmniAuth
     class Password
       include OmniAuth::Strategy
       
-      def initialize(app, secret = 'changethisappsecret', options = {})
-        @options = options
+      def initialize(app, secret = 'changethisappsecret', options = {}, &block)
         @secret = secret
-        super(app, :password)
+        super(app, :password, options, &block)
       end
 
       attr_reader :secret

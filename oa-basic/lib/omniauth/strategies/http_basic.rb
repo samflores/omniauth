@@ -6,7 +6,7 @@ module OmniAuth
     class HttpBasic
       include OmniAuth::Strategy
       
-      def initialize(app, name, endpoint, headers = {})
+      def initialize(app, name, endpoint = nil, headers = {}, &block)
         super
         @endpoint = endpoint
         @request_headers = headers
@@ -27,7 +27,7 @@ module OmniAuth
       end
       
       def get_credentials
-        OmniAuth::Form.build(title) do
+        OmniAuth::Form.build(:title => title) do
           text_field 'Username', 'username'
           password_field 'Password', 'password'
         end.to_response

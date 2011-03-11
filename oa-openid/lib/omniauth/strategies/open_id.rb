@@ -35,8 +35,8 @@ module OmniAuth
       # @option options [Array] :optional The optional attributes for the OpenID request. May
       #   be ActiveExchange or sreg.
       # @option options [Symbol, :open_id] :name The URL segment name for this provider.
-      def initialize(app, store = nil, options = {})
-        super(app, options[:name] || :open_id)
+      def initialize(app, store = nil, options = {}, &block)
+        super(app, (options[:name] || :open_id), &block)
         @options = options
         @options[:required] ||= [AX[:email], AX[:name], AX[:first_name], AX[:last_name], 'email', 'fullname']
         @options[:optional] ||= [AX[:nickname], AX[:city], AX[:state], AX[:website], AX[:image], 'postcode', 'nickname']
@@ -53,12 +53,6 @@ module OmniAuth
           :optional => @options[:optional],
           :method => 'post'
         )}, []]}
-      end
-      
-      def callback_url
-        uri = URI.parse(request.url)
-        uri.path += '/callback'
-        uri.to_s
       end
       
       def identifier
@@ -81,14 +75,13 @@ module OmniAuth
       end
       
       def get_identifier
-        OmniAuth::Form.build('OpenID Authentication') do
+        OmniAuth::Form.build(:title => 'OpenID Authentication') do
           label_field('OpenID Identifier', IDENTIFIER_URL_PARAMETER)
           input_field('url', IDENTIFIER_URL_PARAMETER)
         end.to_response
       end
       
       def callback_phase
-        env['REQUEST_METHOD'] = 'GET'
         openid = Rack::OpenID.new(lambda{|env| [200,{},[]]}, @store)
         openid.call(env)
         @openid_response = env.delete('rack.openid.response')
@@ -128,7 +121,7 @@ module OmniAuth
           'email' => ax.get_single(AX[:email]),
           'first_name' => ax.get_single(AX[:first_name]),
           'last_name' => ax.get_single(AX[:last_name]),
-          'name' => (ax.get_single(AX[:name]) || [ax.get_single(AX[:first_name]), ax.get_single(AX[:last_name])].join(' ')),
+          'name' => (ax.get_single(AX[:name]) || [ax.get_single(AX[:first_name]), ax.get_single(AX[:last_name])].join(' ')).strip,
           'location' => ("#{ax.get_single(AX[:city])}, #{ax.get_single(AX[:state])}" if Array(ax.get_single(AX[:city])).any? && Array(ax.get_single(AX[:state])).any?),
           'nickname' => ax.get_single(AX[:nickname]),
           'urls' => ({'Website' => Array(ax.get_single(AX[:website])).first} if Array(ax.get_single(AX[:website])).any?)
