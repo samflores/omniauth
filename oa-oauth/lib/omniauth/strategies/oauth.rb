@@ -1,3 +1,4 @@
+require 'multi_json'
 require 'oauth'
 require 'omniauth/oauth'
 
@@ -13,6 +14,7 @@ module OmniAuth
         super
         self.options[:open_timeout] ||= 30
         self.options[:read_timeout] ||= 30
+        self.options[:authorize_params] = options[:authorize_params] || {}
       end
 
       def consumer
@@ -29,15 +31,13 @@ module OmniAuth
         request_token = consumer.get_request_token(:oauth_callback => callback_url)
         session['oauth'] ||= {}
         session['oauth'][name.to_s] = {'callback_confirmed' => request_token.callback_confirmed?, 'request_token' => request_token.token, 'request_secret' => request_token.secret}
-        r = Rack::Response.new
 
         if request_token.callback_confirmed?
-          r.redirect(request_token.authorize_url)
+          redirect request_token.authorize_url(options[:authorize_params])
         else
-          r.redirect(request_token.authorize_url(:oauth_callback => callback_url))
+          redirect request_token.authorize_url(options[:authorize_params].merge(:oauth_callback => callback_url))
         end
 
-        r.finish
       rescue ::Timeout::Error => e
         fail!(:timeout, e)
       end
@@ -60,7 +60,7 @@ module OmniAuth
         fail!(:service_unavailable, e)
       rescue ::OAuth::Unauthorized => e
         fail!(:invalid_credentials, e)
-      rescue ::MultiJson::DecodeError => e
+      rescue ::NoMethodError, ::MultiJson::DecodeError => e
         fail!(:invalid_response, e)
       end
 

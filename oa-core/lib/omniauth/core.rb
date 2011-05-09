@@ -2,14 +2,12 @@ require 'rack'
 require 'singleton'
 
 module OmniAuth
+  module Strategies; end
+
   autoload :Builder,  'omniauth/builder'
   autoload :Strategy, 'omniauth/strategy'
   autoload :Test,     'omniauth/test'
   autoload :Form,     'omniauth/form'
-
-  module Strategies
-    autoload :Password, 'omniauth/strategies/password'
-  end
 
   def self.strategies
     @@strategies ||= []
@@ -75,7 +73,7 @@ module OmniAuth
     attr_writer :on_failure
     attr_accessor :path_prefix, :allowed_request_methods, :form_css, :test_mode, :mock_auth, :full_host
   end
-  
+
   def self.config
     Configuration.instance
   end
@@ -99,7 +97,8 @@ module OmniAuth
       'soundcloud' => 'SoundCloud',
       'smugmug' => 'SmugMug',
       'cas' => 'CAS',
-      'trademe' => 'TradeMe'
+      'trademe' => 'TradeMe',
+      'ldap'  => 'LDAP'
     }
 
     module_function
